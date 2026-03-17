@@ -24,7 +24,7 @@ export default function LoginPage() {
   const isValidEmail = email.trim().length > 0;
   const isValidPass = password.trim().length > 0;
   return (
-    // your form JSX here
+    
     <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
   <div className="w-full max-w-sm">
     
