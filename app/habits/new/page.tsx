@@ -31,7 +31,7 @@ export default function AddHabitPage() {
 
     const { data, error } = await supabase
       .from("habits")
-      .insert([{ user_id: user.id, name: habitName, quit_date }])
+      .insert([{ user_id: user.id, name: habitName, quit_date, streak_start_date: quit_date }])
       .select()
 
     if (error) {

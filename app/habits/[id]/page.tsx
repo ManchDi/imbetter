@@ -10,9 +10,12 @@ export default async function HabitPage({ params }: { params: { id: string } }) 
 
   const { data: habit } = await supabase
     .from("habits")
-    .select("id, name, quit_date, motivation, reason")
-    .eq("user_id", user.id).eq("id", habitId).single()
+    .select("id, name, quit_date, streak_start_date, motivation, reason, created_at, user_id")
+    .eq("user_id", user.id)
+    .eq("id", habitId)
+    .single()
+
   if (!habit) redirect("/dashboard")
 
-  return <HabitClient habit={habit || null} />
+  return <HabitClient habit={habit} />
 }
