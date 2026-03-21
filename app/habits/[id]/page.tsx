@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import HabitClient from "@/components/Habits/HabitClient"
 
+
 export default async function HabitPage({ params }: { params: { id: string } }) {
   const habitId = params.id
   const supabase = await createClient()
@@ -17,5 +18,9 @@ export default async function HabitPage({ params }: { params: { id: string } }) 
 
   if (!habit) redirect("/dashboard")
 
-  return <HabitClient habit={habit} />
+  return (
+    
+    <HabitClient habit={habit} />
+    )
+
 }

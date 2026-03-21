@@ -14,7 +14,7 @@ export interface CheckIn {
   user_id: string
   habit_id: string
   date: string
-  mood: string
+  mood: int
   note: string | null
   ai_response: string | null
   created_at: string
