@@ -1,18 +1,23 @@
 "use client"
-import { Habit } from "@/types"
+import { Habit, CheckIn } from "@/types"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 
 const moods = [
-  { label: "Feeling strong", value: 5 },
-  { label: "Doing okay", value: 4 },
-  { label: "Struggling a bit", value: 3 },
+  { label: "Feeling strong",    value: 5 },
+  { label: "Doing okay",        value: 4 },
+  { label: "Struggling a bit",  value: 3 },
   { label: "Really hard today", value: 2 },
-  { label: "About to give in", value: 1 },
+  { label: "About to give in",  value: 1 },
 ]
 
-export default function CheckInForm({ habit }: { habit: Habit }) {
+interface Props {
+  habit: Habit
+  onSuccess: (checkin: CheckIn) => void
+}
+
+export default function CheckInForm({ habit, onSuccess }: Props) {
   const [step, setStep] = useState<1 | 2>(1)
   const [mood, setMood] = useState<number | null>(null)
   const [note, setNote] = useState("")
@@ -40,8 +45,8 @@ export default function CheckInForm({ habit }: { habit: Habit }) {
     if (error) {
       setError(error.message)
     } else {
-      // ai_response will be populated once /api/checkin is wired up
       setAiResponse(data.ai_response ?? "")
+      onSuccess(data as CheckIn)
       setStep(2)
     }
   }
@@ -49,10 +54,9 @@ export default function CheckInForm({ habit }: { habit: Habit }) {
   const moodLabel = moods.find(m => m.value === mood)?.label ?? ""
   const isValid = mood !== null
 
-  // ── Step 2 — success ───────────────────────────────────────────────────────
   if (step === 2) {
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col gap-4">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col gap-4 mb-4">
         <div className="flex items-center gap-2">
           <span className="text-green-400 font-semibold text-sm">✓ Checked in today</span>
           <span className="text-slate-500 text-sm">—</span>
@@ -73,9 +77,8 @@ export default function CheckInForm({ habit }: { habit: Habit }) {
     )
   }
 
-  // ── Step 1 — form ──────────────────────────────────────────────────────────
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 mb-4">
       <div className="mb-4">
         <h2 className="text-xl font-bold text-white tracking-tight">Today&apos;s Check-in</h2>
         <h3 className="text-slate-400 text-sm mt-1">How are you feeling today?</h3>

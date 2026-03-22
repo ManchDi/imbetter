@@ -2,7 +2,6 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import HabitClient from "@/components/Habits/HabitClient"
 
-
 export default async function HabitPage({ params }: { params: { id: string } }) {
   const habitId = params.id
   const supabase = await createClient()
@@ -18,9 +17,15 @@ export default async function HabitPage({ params }: { params: { id: string } }) 
 
   if (!habit) redirect("/dashboard")
 
-  return (
-    
-    <HabitClient habit={habit} />
-    )
+  const { data: checkins } = await supabase
+    .from("checkins")
+    .select("id, user_id, habit_id, date, mood, note, ai_response, created_at")
+    .eq("habit_id", habitId)
+    .order("date", { ascending: false })
+    .limit(20)
 
+  const today = new Date().toISOString().split("T")[0]
+  const checkedInToday = (checkins ?? []).some(c => c.date === today)
+
+  return <HabitClient habit={habit} checkins={checkins ?? []} checkedInToday={checkedInToday} />
 }
