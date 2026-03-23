@@ -1,8 +1,6 @@
 "use client"
 import { Habit, CheckIn } from "@/types"
-import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { createClient } from "@/lib/supabase/client"
 
 const moods = [
   { label: "Feeling strong",    value: 5 },
@@ -24,31 +22,31 @@ export default function CheckInForm({ habit, onSuccess }: Props) {
   const [aiResponse, setAiResponse] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const supabase = createClient()
-  const router = useRouter()
+
 
   async function handleCheckIn() {
     setLoading(true)
     setError("")
-    const today = new Date().toISOString().split("T")[0]
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push("/login"); return }
 
-    const { data, error } = await supabase
-      .from("checkins")
-      .insert([{ user_id: user.id, habit_id: habit.id, date: today, mood, note: note || null }])
-      .select()
-      .single()
+    const res = await fetch("/api/checkin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ habit_id: habit.id, mood, note: note || null }),
+    })
 
-    setLoading(false)
+    const data = await res.json()
 
-    if (error) {
-      setError(error.message)
-    } else {
-      setAiResponse(data.ai_response ?? "")
-      onSuccess(data as CheckIn)
-      setStep(2)
+    if (!res.ok) {
+      setError(data.error ?? "Something went wrong")
+      setLoading(false)
+      return
     }
+
+    setAiResponse(data.ai_response ?? "")
+    onSuccess(data)
+    setLoading(false)
+    setStep(2)
+
   }
 
   const moodLabel = moods.find(m => m.value === mood)?.label ?? ""
