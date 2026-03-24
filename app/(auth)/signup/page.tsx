@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 
 export default function SignUpPage() {
@@ -9,21 +8,50 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("")
   const [confirm_password, setConfirmPassword] = useState("")
   const [error, setError] = useState("")
-  const router = useRouter()
+  const [confirmed, setConfirmed] = useState(false)
   const supabase = createClient()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     const { error } = await supabase.auth.signUp({ email, password })
-    
+
     if (error) {
       setError(error.message)
     } else {
-      router.push("/dashboard")
+      setConfirmed(true)
     }
   }
-  const isValidEmail = email.trim().length > 0;
-  const isValidPass = (password.trim() == confirm_password.trim()) && password.trim().length>0;
+
+  const isValidEmail = email.trim().length > 0
+  const isValidPass = (password.trim() === confirm_password.trim()) && password.trim().length > 0
+
+  if (confirmed) {
+    return (
+      <div className="min-h-screen bg-grid bg-gray-950 flex items-center justify-center p-4">
+        <div className="w-full max-w-sm">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-purple-600 mb-4 glow-purple">
+              <span className="text-xl">↑</span>
+            </div>
+            <h1 className="text-3xl font-bold text-white tracking-tight">ImBetter</h1>
+          </div>
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl text-center">
+            <p className="text-green-400 font-semibold mb-2">Check your email</p>
+            <p className="text-slate-400 text-sm">
+              We sent a confirmation link to <span className="text-white">{email}</span>. Click it to activate your account.
+            </p>
+            <a
+              href="/login"
+              className="inline-block mt-6 text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors"
+            >
+              Back to sign in
+            </a>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-grid bg-gray-950 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">

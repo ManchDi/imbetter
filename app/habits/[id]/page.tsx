@@ -10,7 +10,7 @@ export default async function HabitPage({ params }: { params: { id: string } }) 
 
   const { data: habit } = await supabase
     .from("habits")
-    .select("id, name, quit_date, streak_start_date, motivation, reason, created_at, user_id")
+    .select("id, name, quit_date, streak_start_date, motivation, reason")
     .eq("user_id", user.id)
     .eq("id", habitId)
     .single()
@@ -19,8 +19,9 @@ export default async function HabitPage({ params }: { params: { id: string } }) 
 
   const { data: checkins } = await supabase
     .from("checkins")
-    .select("id, user_id, habit_id, date, mood, note, ai_response, created_at")
+    .select("id, habit_id, user_id, date, mood, note, ai_response, created_at")
     .eq("habit_id", habitId)
+    .eq("user_id", user.id)
     .order("date", { ascending: false })
     .limit(20)
 

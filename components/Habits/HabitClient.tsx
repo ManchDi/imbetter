@@ -2,6 +2,7 @@
 import { useState } from "react"
 import { Habit, CheckIn } from "@/types"
 import CheckInForm from "@/components/Habits/CheckInForm"
+import { calcStreak } from "@/lib/utils"
 
 const moods: Record<number, { label: string; color: string }> = {
   5: { label: "Feeling strong",    color: "text-green-400"  },
@@ -9,13 +10,6 @@ const moods: Record<number, { label: string; color: string }> = {
   3: { label: "Struggling a bit",  color: "text-yellow-400" },
   2: { label: "Really hard today", color: "text-orange-400" },
   1: { label: "About to give in",  color: "text-red-400"    },
-}
-
-function calcStreak(streakStartDate: string | null): number | null {
-  if (!streakStartDate) return null
-  const start = new Date(streakStartDate)
-  const today = new Date()
-  return Math.floor((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
 }
 
 function formatDate(dateStr: string): string {
@@ -64,7 +58,7 @@ export default function HabitClient({ habit, checkins: initialCheckins, checkedI
 
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-white tracking-tight">Quitting {habit.name}</h1>
-          {habit.streak_start_date && (
+          {habit.quit_date && (
             <p className="text-slate-500 text-sm mt-1">
               Started {formatStartDate(habit.quit_date)} · Day {totalDays} of your journey
             </p>

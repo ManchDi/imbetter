@@ -3,13 +3,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Habit } from "@/types"
-
-function calcStreak(streakStartDate: string | null): number | null {
-  if (!streakStartDate) return null
-  const start = new Date(streakStartDate)
-  const today = new Date()
-  return Math.floor((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
-}
+import { calcStreak } from "@/lib/utils"
 
 export default function DashboardClient({ habits }: { habits: Habit[] }) {
   const [error, setError] = useState("")
