@@ -131,7 +131,7 @@ ${conversationHistory}
       model: "gemini-3.1-flash-lite-preview",
       contents: [{ parts: [{ text: prompt }] }],
     })
-    response = result.text.trim()
+    response = result.text?.trim() ?? null
   } catch (err) {
     console.error("Gemini error:", err)
     return NextResponse.json({ error: "AI unavailable" }, { status: 502 })
