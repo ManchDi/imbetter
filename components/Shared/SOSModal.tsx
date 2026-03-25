@@ -27,7 +27,7 @@ export default function SOSModal({ habits, initialHabit, onClose }: Props) {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-white font-bold text-lg">SOS</h2>
-            <p className="text-slate-500 text-xs mt-0.5">Talk it through — you've got this far</p>
+            <p className="text-slate-500 text-xs mt-0.5">Talk it through &mdash; you&apos;ve got this far</p>
           </div>
           <button
             onClick={onClose}

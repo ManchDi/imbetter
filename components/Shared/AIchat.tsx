@@ -21,18 +21,16 @@ export default function AIchat({ habit, checkinContext }: Props) {
 
   const [messages, setMessages] = useState<Message[]>([])
 
-  // read on mount
   useEffect(() => {
     const saved = localStorage.getItem(todayKey)
     if (saved) setMessages(JSON.parse(saved))
-  }, [])
+  }, [todayKey])
 
-  // write on change
   useEffect(() => {
     if (messages.length > 0) {
       localStorage.setItem(todayKey, JSON.stringify(messages))
     }
-  }, [messages])
+  }, [messages, todayKey])
 
   // scroll on change
   useEffect(() => {
