@@ -113,7 +113,7 @@ End with one short, natural question directly related to their situation (not ge
       model: "gemini-3.1-flash-lite-preview",
       contents: [{ parts: [{ text: prompt }] }],
     })
-    aiResponse = result.text.trim()
+    aiResponse = result.text?.trim() ?? null
   } catch (err) {
     console.error("Gemini error:", err)
     // aiResponse stays null — check-in still gets saved
