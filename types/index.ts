@@ -28,3 +28,8 @@ export interface Relapse {
   trigger: string | null
   note: string | null
 }
+
+export interface Message {
+  role: "user" | "assistant"
+  content: string
+}

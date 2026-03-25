@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { GoogleGenAI } from "@google/genai"
 
+
 export async function POST(req: NextRequest) {
 
   // 1. Parse body

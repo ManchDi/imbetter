@@ -1,6 +1,7 @@
 "use client"
 import { Habit, CheckIn } from "@/types"
 import { useState } from "react"
+import AIchat from "@/components/Shared/AIchat"
 
 const moods = [
   { label: "Feeling strong",    value: 5 },
@@ -12,10 +13,11 @@ const moods = [
 
 interface Props {
   habit: Habit
+  recentCheckins: CheckIn[]
   onSuccess: (checkin: CheckIn) => void
 }
 
-export default function CheckInForm({ habit, onSuccess }: Props) {
+export default function CheckInForm({ habit, recentCheckins, onSuccess }: Props) {
   const [step, setStep] = useState<1 | 2>(1)
   const [mood, setMood] = useState<number | null>(null)
   const [note, setNote] = useState("")
@@ -71,6 +73,7 @@ export default function CheckInForm({ habit, onSuccess }: Props) {
             <p className="text-white text-sm leading-relaxed">{aiResponse}</p>
           </div>
         )}
+        <AIchat habit={habit} checkinContext={{ mood: mood!, aiResponse, note: note || null, recentCheckins }}/>
       </div>
     )
   }

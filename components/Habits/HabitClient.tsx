@@ -3,6 +3,8 @@ import { useState } from "react"
 import { Habit, CheckIn } from "@/types"
 import CheckInForm from "@/components/Habits/CheckInForm"
 import { calcStreak } from "@/lib/utils"
+import AIchat from "@/components/Shared/AIchat"
+import SOSModal from "@/components/Shared/SOSModal"
 
 const moods: Record<number, { label: string; color: string }> = {
   5: { label: "Feeling strong",    color: "text-green-400"  },
@@ -34,7 +36,10 @@ interface Props {
 export default function HabitClient({ habit, checkins: initialCheckins, checkedInToday: initialCheckedInToday }: Props) {
   const [checkins, setCheckins] = useState<CheckIn[]>(initialCheckins)
   const [checkedInToday, setCheckedInToday] = useState(initialCheckedInToday)
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
+  const [isSOSOpen, setIsSOSOpen] = useState(false)
 
+  const today = new Date().toISOString().split("T")[0]
   const streak = calcStreak(habit.streak_start_date)
   const totalDays = habit.quit_date
     ? Math.floor((new Date().getTime() - new Date(habit.quit_date).getTime()) / (1000 * 60 * 60 * 24)) + 1
@@ -44,6 +49,17 @@ export default function HabitClient({ habit, checkins: initialCheckins, checkedI
     setCheckins(prev => [newCheckin, ...prev])
     setCheckedInToday(true)
   }
+
+  function toggleExpanded(id: string) {
+    setExpandedIds(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  const todayCheckin = checkins[0]?.date === today ? checkins[0] : null
+  const historyCheckins = checkins.filter(c => c.date !== today)
 
   return (
     <div className="min-h-screen bg-grid bg-gray-950 p-4 pb-16">
@@ -98,26 +114,44 @@ export default function HabitClient({ habit, checkins: initialCheckins, checkedI
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center mb-4">
             <p className="text-slate-500 text-sm">Start your streak from the dashboard first.</p>
           </div>
-        ) : checkedInToday ? (
-          <div className="bg-slate-900 border border-green-900/40 rounded-2xl p-5 mb-4 flex items-center gap-3">
-            <span className="text-green-400 text-lg">✓</span>
-            <div>
-              <p className="text-green-400 font-semibold text-sm">Checked in today</p>
-              {checkins[0] && (
+        ) : checkedInToday && todayCheckin ? (
+          <div className="bg-slate-900 border border-green-900/40 rounded-2xl p-5 mb-4 flex flex-col gap-3">
+            <div className="flex items-center gap-3">
+              <span className="text-green-400 text-lg">✓</span>
+              <div>
+                <p className="text-green-400 font-semibold text-sm">Checked in today</p>
                 <p className="text-slate-500 text-xs mt-0.5">
-                  {moods[checkins[0].mood]?.label} · {checkins[0].mood}/5
+                  {moods[todayCheckin.mood]?.label} · {todayCheckin.mood}/5
                 </p>
-              )}
+              </div>
             </div>
+            {todayCheckin.note && (
+              <p className="text-slate-400 text-sm italic">&ldquo;{todayCheckin.note}&rdquo;</p>
+            )}
+            {todayCheckin.ai_response && (
+              <div className="bg-purple-900/30 border border-purple-700/40 rounded-xl p-4">
+                <p className="text-slate-300 text-xs uppercase tracking-widest mb-2">Your coach says</p>
+                <p className="text-white text-sm leading-relaxed">{todayCheckin.ai_response}</p>
+              </div>
+            )}
+            <AIchat
+              habit={habit}
+              checkinContext={{
+                mood: todayCheckin.mood,
+                aiResponse: todayCheckin.ai_response ?? "",
+                note: todayCheckin.note,
+                recentCheckins: checkins.slice(0, 5),
+              }}
+            />
           </div>
         ) : (
-          <CheckInForm habit={habit} onSuccess={handleCheckInSuccess} />
+          <CheckInForm habit={habit} onSuccess={handleCheckInSuccess} recentCheckins={checkins.slice(0, 5)}/>
         )}
 
-        {checkins.length > 0 && (
+        {historyCheckins.length > 0 && (
           <div className="flex flex-col gap-2">
             <h2 className="text-slate-500 text-xs uppercase tracking-wider px-1 mb-1">Check-in History</h2>
-            {checkins.map((c) => (
+            {historyCheckins.map((c) => (
               <div key={c.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-slate-500 text-xs font-medium">{formatDate(c.date)}</span>
@@ -130,8 +164,15 @@ export default function HabitClient({ habit, checkins: initialCheckins, checkedI
                 )}
                 {c.ai_response && (
                   <div className="border-t border-slate-800 pt-2 mt-1">
-                    <p className="text-slate-600 text-xs uppercase tracking-wider mb-1">Coach</p>
-                    <p className="text-purple-300 text-xs leading-relaxed">{c.ai_response}</p>
+                    <button
+                      onClick={() => toggleExpanded(c.id)}
+                      className="text-slate-600 hover:text-slate-400 text-xs transition-colors"
+                    >
+                      {expandedIds.has(c.id) ? "Hide coach response ↑" : "Show coach response ↓"}
+                    </button>
+                    {expandedIds.has(c.id) && (
+                      <p className="text-purple-300 text-xs leading-relaxed mt-2">{c.ai_response}</p>
+                    )}
                   </div>
                 )}
               </div>
@@ -146,6 +187,22 @@ export default function HabitClient({ habit, checkins: initialCheckins, checkedI
         )}
 
       </div>
+      {/* SOS Button */}
+        <button
+          onClick={() => setIsSOSOpen(true)}
+          className="fixed bottom-6 right-6 z-40 px-5 py-3 bg-red-500 hover:bg-red-400 text-white text-sm font-bold rounded-full shadow-lg transition-all duration-200"
+        >
+          SOS
+        </button>
+
+        {/* SOS Modal */}
+        {isSOSOpen && (
+          <SOSModal
+            habits={[habit]}
+            initialHabit={habit}
+            onClose={() => setIsSOSOpen(false)}
+          />
+        )}
     </div>
   )
 }

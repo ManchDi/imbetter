@@ -4,11 +4,13 @@ import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Habit } from "@/types"
 import { calcStreak } from "@/lib/utils"
+import SOSModal from "@/components/Shared/SOSModal"
 
 export default function DashboardClient({ habits }: { habits: Habit[] }) {
   const [error, setError] = useState("")
   const router = useRouter()
   const supabase = createClient()
+  const [isSOSOpen, setIsSOSOpen] = useState(false)
 
 async function handleLogOut() {
   await supabase.auth.signOut()
@@ -132,6 +134,19 @@ async function handleLogOut() {
           </div>
         )}
       </div>
+      <button
+        onClick={() => setIsSOSOpen(true)}
+        className="fixed bottom-6 right-6 z-40 px-5 py-3 bg-red-500 hover:bg-red-400 text-white text-sm font-bold rounded-full shadow-lg transition-all duration-200"
+      >
+        SOS
+      </button>
+
+      {isSOSOpen && (
+        <SOSModal
+          habits={habits}
+          onClose={() => setIsSOSOpen(false)}
+        />
+      )}
     </div>
   )
 }
