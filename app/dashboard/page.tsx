@@ -9,7 +9,7 @@ export default async function DashboardPage() {
 
   const { data: habits } = await supabase
     .from("habits")
-    .select("id, name, quit_date, streak_start_date, motivation, reason")
+    .select("*")
     .eq("user_id", user.id)
 
   return <DashboardClient habits={habits || []} />
