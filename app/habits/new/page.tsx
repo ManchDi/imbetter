@@ -144,19 +144,26 @@ export default function AddHabitPage() {
         ) : (
           <form className="bg-slate-800 rounded-2xl p-8" onSubmit={handleMotivation}>
             <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1">
-                <h2 className="text-white text-lg font-semibold">One more thing</h2>
-                <p className="text-slate-400 text-sm">How motivated are you feeling? (1-5)</p>
-                <input
-                  type="number"
-                  value={motivation}
-                  onChange={(e) => setMotivation(Number(e.target.value))}
-                  min={1}
-                  max={5}
-                  placeholder="1-5"
-                  className="bg-slate-900 text-white px-4 py-3 rounded-xl border border-slate-700 focus:outline-none focus:border-purple-500 placeholder-slate-600"
-                />
+            <div className="flex flex-col gap-1">
+              <h2 className="text-white text-lg font-semibold">One more thing</h2>
+              <p className="text-slate-400 text-sm">How motivated are you feeling? (1-5)</p>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map((value) => (
+                  <button
+                    type="button"
+                    key={value}
+                    onClick={() => setMotivation(value)}
+                    className={`flex-1 py-3 rounded-xl border text-sm font-medium transition-colors
+                      ${motivation === value
+                        ? "bg-purple-600 border-purple-500 text-white"
+                        : "bg-slate-900 border-slate-700 text-slate-400 hover:border-purple-500 hover:text-white"
+                      }`}
+                  >
+                    {value}
+                  </button>
+                ))}
               </div>
+            </div>
 
               {error && <p className="text-red-400 text-sm">{error}</p>}
 
